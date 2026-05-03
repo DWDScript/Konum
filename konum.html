@@ -15,8 +15,6 @@
             min-height: 100vh;
         }
         .app-container { display: flex; height: 100vh; }
-
-        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 380px;
             background: #ffffff;
@@ -47,8 +45,6 @@
         }
         .sidebar-content::-webkit-scrollbar { width: 6px; }
         .sidebar-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-        /* ===== BUTTONS ===== */
         .btn-group { display: flex; gap: 8px; margin-bottom: 12px; }
         .btn {
             flex: 1;
@@ -71,10 +67,6 @@
         .btn-secondary:hover { background: #e2e8f0; }
         .btn-success { background: #16a34a; color: white; }
         .btn-success:hover { background: #15803d; }
-        .btn-ghost { background: transparent; color: #64748b; border: 1px dashed #cbd5e1; }
-        .btn-ghost:hover { background: #f8fafc; color: #475569; }
-
-        /* ===== COORD INPUT ===== */
         .coord-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -103,8 +95,6 @@
         }
         .coord-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         .coord-label { font-size: 0.68rem; color: #94a3b8; margin-bottom: 3px; font-weight: 500; }
-
-        /* ===== ADDRESS CARDS ===== */
         .address-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -177,8 +167,6 @@
             color: #dc2626;
             margin-top: 4px;
         }
-
-        /* ===== BEST CARD ===== */
         .best-address-text {
             font-size: 1rem;
             font-weight: 600;
@@ -186,8 +174,6 @@
             line-height: 1.5;
             word-break: break-word;
         }
-
-        /* ===== POINTS LIST ===== */
         .points-list { margin-top: 12px; }
         .points-list h3 {
             font-size: 0.72rem;
@@ -256,8 +242,6 @@
         }
         .point-action-btn:hover { background: #e2e8f0; color: #334155; }
         .point-action-btn.delete:hover { background: #fee2e2; color: #dc2626; }
-
-        /* ===== STATUS ===== */
         .status-bar {
             padding: 10px 15px;
             background: #f8fafc;
@@ -278,8 +262,6 @@
         .status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
         .status-dot.error { background: #ef4444; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-        /* ===== MAP ===== */
         .map-area { flex: 1; position: relative; }
         #map { width: 100%; height: 100%; z-index: 1; }
         .map-controls {
@@ -306,8 +288,6 @@
         }
         .map-control-btn:hover { background: #f8fafc; transform: scale(1.05); }
         .map-control-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
-
-        /* ===== POPUP ===== */
         .leaflet-popup-content-wrapper {
             background: #ffffff;
             color: #1e293b;
@@ -335,8 +315,6 @@
             color: white;
         }
         .popup-btn:hover { background: #1d4ed8; }
-
-        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 25px; left: 50%;
@@ -355,8 +333,6 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-        /* ===== LOADING ===== */
         .spinner {
             width: 14px; height: 14px;
             border: 2px solid #cbd5e1;
@@ -366,16 +342,11 @@
             flex-shrink: 0;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
 
-        /* ===== MOBILE ===== */
         @media (max-width: 768px) {
             .app-container { flex-direction: column; }
-            .sidebar {
-                width: 100%;
-                height: 55vh;
-                border-right: none;
-                border-bottom: 1px solid #e2e8f0;
-            }
+            .sidebar { width: 100%; height: 55vh; border-right: none; border-bottom: 1px solid #e2e8f0; }
             .map-area { height: 45vh; }
             .sidebar-header h1 { font-size: 1.1rem; }
             .sidebar-header { padding: 12px 15px; }
@@ -384,31 +355,21 @@
             .coord-card { padding: 10px; }
             .address-card { padding: 10px; }
         }
-
-        /* ===== HIDE/SHOW ===== */
-        .hidden { display: none !important; }
     </style>
 <base target="_blank">
 </head>
 <body>
     <div class="app-container">
-        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h1>📍 Konum & Adres Bulucu</h1>
-                <p>Haritaya tıkla → 3 kaynaktan adres çek → En iyisini seç</p>
+                <p>Haritaya tıkla → Adres çıkart → En iyisini seç</p>
             </div>
             <div class="sidebar-content">
                 <div class="btn-group">
-                    <button class="btn btn-primary" id="btnGetLocation">
-                        <span>📍</span> Konumum
-                    </button>
-                    <button class="btn btn-secondary" id="btnClearAll">
-                        <span>🗑️</span> Temizle
-                    </button>
+                    <button class="btn btn-primary" id="btnGetLocation"><span>📍</span> Konumum</button>
+                    <button class="btn btn-secondary" id="btnClearAll"><span>🗑️</span> Temizle</button>
                 </div>
-
-                <!-- Koordinat Girişi -->
                 <div class="coord-card">
                     <h3>🎯 Koordinat ile Ara</h3>
                     <div class="coord-row">
@@ -421,12 +382,9 @@
                             <input type="text" class="coord-input" id="inputLng" placeholder="30.2833">
                         </div>
                     </div>
-                    <button class="btn btn-success" id="btnSearchCoords" style="width:100%; margin-top:8px;">
-                        <span>🔍</span> Koordinatı Ara
-                    </button>
+                    <button class="btn btn-success" id="btnSearchCoords" style="width:100%; margin-top:8px;"><span>🔍</span> Koordinatı Ara</button>
                 </div>
 
-                <!-- Sonuçlar -->
                 <div id="resultsArea" class="hidden">
                     <div class="address-card" id="cardOSM">
                         <div class="address-source">
@@ -464,37 +422,27 @@
                             <div class="score-bar"><div class="score-fill" id="barGeoXYZ" style="width:0%"></div></div>
                         </div>
                     </div>
-
-                    <!-- En İyi -->
                     <div class="address-card best" id="cardBest">
                         <div class="address-source">
                             <span class="source-icon best-icon">🏆</span>
                             <span>EN İYİ ADRES</span>
                         </div>
                         <div class="best-address-text" id="textBest">-</div>
-                        <button class="btn btn-success" id="btnCopyBest" style="margin-top:10px; width:100%;">
-                            <span>📋</span> Adresi Kopyala
-                        </button>
+                        <button class="btn btn-success" id="btnCopyBest" style="margin-top:10px; width:100%;"><span>📋</span> Adresi Kopyala</button>
                     </div>
                 </div>
 
-                <!-- Tıklanan Noktalar -->
                 <div class="points-list hidden" id="pointsListArea">
-                    <h3>
-                        📌 Tıklanan Noktalar
-                        <span class="point-count" id="pointCount">0</span>
-                    </h3>
+                    <h3>📌 Tıklanan Noktalar <span class="point-count" id="pointCount">0</span></h3>
                     <div id="pointsList"></div>
                 </div>
             </div>
-
             <div class="status-bar">
                 <div class="status-dot" id="statusDot"></div>
                 <span id="statusText">Harita hazır. Konum alın veya haritaya tıklayın.</span>
             </div>
         </div>
 
-        <!-- MAP -->
         <div class="map-area">
             <div id="map"></div>
             <div class="map-controls">
@@ -505,38 +453,27 @@
             </div>
         </div>
     </div>
-
     <div class="toast" id="toast"></div>
 
     <script>
-        // ===== GLOBALS =====
         let map = null, currentMarker = null;
         let clickMarkers = [], clickPoints = [];
         let clickMode = true, isLoading = false;
-        const PROXY = 'https://api.allorigins.win/raw?url=';
 
-        // ===== INIT =====
         function initMap() {
             map = L.map('map', { zoomControl: false }).setView([36.3667, 30.2833], 13);
-
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://openstreetmap.org">OSM</a>',
                 maxZoom: 19
             }).addTo(map);
-
             map.on('click', function(e) {
-                if (clickMode && !isLoading) {
-                    handleMapClick(e.latlng.lat, e.latlng.lng);
-                }
+                if (clickMode && !isLoading) handleMapClick(e.latlng.lat, e.latlng.lng);
             });
         }
 
-        // ===== UI HELPERS =====
         function setStatus(type, text) {
-            const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            dot.className = 'status-dot ' + type;
-            txt.textContent = text;
+            document.getElementById('statusDot').className = 'status-dot ' + type;
+            document.getElementById('statusText').textContent = text;
         }
 
         function showToast(msg) {
@@ -559,7 +496,6 @@
                 });
         }
 
-        // ===== SCORING =====
         function scoreAddress(addr) {
             if (!addr || addr.includes('alamadı') || addr.includes('hatası') || addr.includes('bulunamadı')) return 0;
             let s = 0;
@@ -574,17 +510,47 @@
 
         function scoreClass(s) { return s >= 60 ? 'high' : s >= 30 ? 'medium' : 'low'; }
 
-        // ===== API CALLS (with proxy for CORS) =====
-        async function apiCall(url) {
-            const res = await fetch(PROXY + encodeURIComponent(url));
+        // ===== CORS-SAFE FETCH =====
+        // Nominatim CORS destekler, BigDataCloud da destekler
+        // GeoCode.XYZ CORS desteklemez - onu JSONP ile deneyelim
+        async function fetchJSON(url) {
+            const res = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             return await res.json();
+        }
+
+        function fetchJSONP(url) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                const callbackName = 'cb_' + Math.random().toString(36).substr(2, 9);
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    resolve(data);
+                };
+                script.onerror = () => {
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    reject(new Error('JSONP failed'));
+                };
+                script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+                document.head.appendChild(script);
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        try { document.head.removeChild(script); } catch(e){}
+                        reject(new Error('JSONP timeout'));
+                    }
+                }, 8000);
+            });
         }
 
         async function fetchOSM(lat, lng) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=tr`;
-                const data = await apiCall(url);
+                const data = await fetchJSON(url);
                 if (data && data.display_name) {
                     let addr = data.display_name;
                     if (data.address) {
@@ -600,16 +566,16 @@
                     }
                     return { ok: true, addr };
                 }
-                return { ok: false, addr: 'Adres bulunamadı', err: 'Veri yok' };
+                return { ok: false, addr: 'Adres bulunamadı', err: 'OSM veri döndürmedi' };
             } catch(e) {
-                return { ok: false, addr: 'Bağlantı hatası', err: e.message };
+                return { ok: false, addr: 'Bağlantı hatası', err: 'OSM: ' + e.message };
             }
         }
 
         async function fetchBigData(lat, lng) {
             try {
                 const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=tr`;
-                const data = await apiCall(url);
+                const data = await fetchJSON(url);
                 if (data && data.locality) {
                     let addr = '';
                     if (data.streetNumber) addr += data.streetNumber + ' ';
@@ -620,16 +586,17 @@
                     addr = addr.replace(/, $/, '').trim();
                     if (addr.length > 5) return { ok: true, addr };
                 }
-                return { ok: false, addr: 'Adres bulunamadı', err: 'Veri yok' };
+                return { ok: false, addr: 'Adres bulunamadı', err: 'BigDataCloud veri döndürmedi' };
             } catch(e) {
-                return { ok: false, addr: 'Bağlantı hatası', err: e.message };
+                return { ok: false, addr: 'Bağlantı hatası', err: 'BigData: ' + e.message };
             }
         }
 
         async function fetchGeoXYZ(lat, lng) {
             try {
+                // GeoCode.XYZ JSONP ile
                 const url = `https://geocode.xyz/${lat},${lng}?geoit=json&region=TR`;
-                const data = await apiCall(url);
+                const data = await fetchJSONP(url);
                 if (data && data.staddress) {
                     let addr = `${data.stnumber || ''} ${data.staddress || ''}, ${data.city || ''}, ${data.state || ''}`;
                     addr = addr.replace(/^\s*,/, '').replace(/,\s*$/, '').trim();
@@ -638,13 +605,12 @@
                 if (data && data.osm && data.osm.display_name) {
                     return { ok: true, addr: data.osm.display_name };
                 }
-                return { ok: false, addr: 'Adres bulunamadı', err: 'Veri yok' };
+                return { ok: false, addr: 'Adres bulunamadı', err: 'GeoCode.XYZ veri döndürmedi' };
             } catch(e) {
-                return { ok: false, addr: 'Bağlantı hatası', err: e.message };
+                return { ok: false, addr: 'Bağlantı hatası', err: 'GeoCode: ' + e.message };
             }
         }
 
-        // ===== UPDATE UI =====
         function updateCard(id, addr, sc, err) {
             const textEl = document.getElementById('text' + id);
             const scoreEl = document.getElementById('score' + id);
@@ -665,13 +631,11 @@
             }
         }
 
-        // ===== MAIN FUNCTION =====
         async function getAllAddresses(lat, lng, isClick) {
             if (isLoading) return;
             isLoading = true;
             setStatus('loading', '⏳ Adresler sorgulanıyor...');
 
-            // Harita güncelle
             if (currentMarker) map.removeLayer(currentMarker);
             currentMarker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 17);
@@ -686,11 +650,15 @@
                 document.getElementById('text' + id).className = 'address-text empty';
             });
 
-            // Sırayla çağır (rate limit)
+            // OSM (CORS destekli)
             const osm = await fetchOSM(lat, lng);
-            await sleep(400);
+            await sleep(500);
+
+            // BigDataCloud (CORS destekli)
             const big = await fetchBigData(lat, lng);
-            await sleep(400);
+            await sleep(500);
+
+            // GeoCode.XYZ (JSONP ile)
             const geo = await fetchGeoXYZ(lat, lng);
 
             const addrs = { OSM: osm.addr, BigData: big.addr, GeoXYZ: geo.addr };
@@ -705,7 +673,6 @@
             updateCard('BigData', addrs.BigData, scores.BigData, errs.BigData);
             updateCard('GeoXYZ', addrs.GeoXYZ, scores.GeoXYZ, errs.GeoXYZ);
 
-            // En iyiyi bul
             let bestKey = 'OSM', bestSc = scores.OSM;
             if (scores.BigData > bestSc) { bestKey = 'BigData'; bestSc = scores.BigData; }
             if (scores.GeoXYZ > bestSc) { bestKey = 'GeoXYZ'; bestSc = scores.GeoXYZ; }
@@ -713,13 +680,12 @@
             let bestAddr = addrs[bestKey];
             if (!bestAddr || bestAddr.includes('alamadı') || bestAddr.includes('hatası')) {
                 const valid = Object.values(addrs).find(a => a && !a.includes('alamadı') && !a.includes('hatası'));
-                bestAddr = valid || '❌ Adres bulunamadı. İnternet bağlantınızı kontrol edin.';
+                bestAddr = valid || 'Adres bulunamadı';
             }
 
             document.getElementById('textBest').textContent = bestAddr;
             document.getElementById('card' + bestKey).classList.add('best');
 
-            // Popup
             currentMarker.bindPopup(`
                 <div class="popup-coords">📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
                 <div class="popup-addr">${bestAddr}</div>
@@ -734,11 +700,9 @@
 
         function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-        // ===== POINTS =====
         function addPoint(lat, lng, addr) {
             const idx = clickPoints.length;
             clickPoints.push({ lat, lng, addr });
-
             const marker = L.circleMarker([lat, lng], {
                 radius: 8, fillColor: '#f59e0b', color: '#fff',
                 weight: 2, opacity: 1, fillOpacity: 0.9
@@ -756,11 +720,9 @@
             const list = document.getElementById('pointsList');
             const count = document.getElementById('pointCount');
             const area = document.getElementById('pointsListArea');
-
             if (clickPoints.length === 0) { area.classList.add('hidden'); return; }
             area.classList.remove('hidden');
             count.textContent = clickPoints.length;
-
             list.innerHTML = clickPoints.map((p, i) => `
                 <div class="point-item" onclick="flyTo(${i})">
                     <div class="point-number">${i + 1}</div>
@@ -800,7 +762,6 @@
             setStatus('active', 'Tüm noktalar temizlendi.');
         }
 
-        // ===== HANDLERS =====
         function handleMapClick(lat, lng) { getAllAddresses(lat, lng, true); }
 
         function getMyLocation() {
@@ -826,7 +787,6 @@
 
         function copyPopup(text) { copyText(text); }
 
-        // ===== EVENTS =====
         document.getElementById('btnGetLocation').addEventListener('click', getMyLocation);
         document.getElementById('btnMyLocation').addEventListener('click', getMyLocation);
         document.getElementById('btnSearchCoords').addEventListener('click', searchCoords);
@@ -849,7 +809,6 @@
         document.getElementById('inputLat').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCoords(); });
         document.getElementById('inputLng').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCoords(); });
 
-        // ===== START =====
         initMap();
         setStatus('active', 'Harita hazır. Konum alın veya haritaya tıklayın.');
     </script>
