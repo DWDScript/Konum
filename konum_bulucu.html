@@ -4,27 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Muhteşem Konum & Adres Bulucu</title>
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #0f172a;
             color: #e2e8f0;
             min-height: 100vh;
         }
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        /* Sol Panel */
+        .app-container { display: flex; height: 100vh; }
         .sidebar {
             width: 420px;
             background: #1e293b;
@@ -47,20 +37,9 @@
             gap: 10px;
             margin-bottom: 5px;
         }
-        .sidebar-header p {
-            font-size: 0.8rem;
-            color: #94a3b8;
-        }
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
+        .sidebar-header p { font-size: 0.8rem; color: #94a3b8; }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 15px; }
+        .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
         .btn {
             flex: 1;
             padding: 12px 16px;
@@ -75,37 +54,12 @@
             justify-content: center;
             gap: 6px;
         }
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background: #334155;
-            color: #e2e8f0;
-        }
-        .btn-secondary:hover {
-            background: #475569;
-        }
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        /* Koordinat Kartı */
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn-secondary:hover { background: #475569; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
         .coord-card {
             background: #0f172a;
             border: 1px solid #334155;
@@ -120,11 +74,7 @@
             letter-spacing: 1px;
             margin-bottom: 10px;
         }
-        .coord-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
+        .coord-row { display: flex; gap: 10px; margin-bottom: 8px; }
         .coord-input {
             flex: 1;
             background: #1e293b;
@@ -133,19 +83,10 @@
             padding: 10px 12px;
             color: #e2e8f0;
             font-size: 0.9rem;
-            font-family: 'SF Mono', monospace;
+            font-family: monospace;
         }
-        .coord-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        .coord-label {
-            font-size: 0.7rem;
-            color: #64748b;
-            margin-bottom: 2px;
-        }
-
-        /* Adres Kartları */
+        .coord-input:focus { outline: none; border-color: #3b82f6; }
+        .coord-label { font-size: 0.7rem; color: #64748b; margin-bottom: 2px; }
         .address-card {
             background: #0f172a;
             border: 1px solid #334155;
@@ -156,9 +97,7 @@
             position: relative;
             overflow: hidden;
         }
-        .address-card:hover {
-            border-color: #475569;
-        }
+        .address-card:hover { border-color: #475569; }
         .address-card.best {
             border-color: #10b981;
             background: #064e3b;
@@ -166,9 +105,7 @@
         .address-card.best::before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            left: 0; top: 0; bottom: 0;
             width: 4px;
             background: #10b981;
         }
@@ -181,8 +118,7 @@
             margin-bottom: 8px;
         }
         .source-icon {
-            width: 28px;
-            height: 28px;
+            width: 28px; height: 28px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -219,8 +155,6 @@
         .score-fill.high { background: #10b981; }
         .score-fill.medium { background: #f59e0b; }
         .score-fill.low { background: #ef4444; }
-
-        /* Durum */
         .status-bar {
             padding: 12px 15px;
             background: #0f172a;
@@ -232,43 +166,26 @@
             gap: 8px;
         }
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             background: #64748b;
         }
         .status-dot.active { background: #10b981; }
         .status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
         .status-dot.error { background: #ef4444; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* Harita */
-        .map-area {
-            flex: 1;
-            position: relative;
-        }
-        #map {
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* Harita Overlay Butonları */
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .map-area { flex: 1; position: relative; }
+        #map { width: 100%; height: 100%; z-index: 1; }
         .map-controls {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
         .map-control-btn {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border-radius: 12px;
             background: #1e293b;
             border: 1px solid #334155;
@@ -281,33 +198,17 @@
             transition: all 0.2s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .map-control-btn:hover {
-            background: #334155;
-            transform: scale(1.05);
-        }
-        .map-control-btn.active {
-            background: #3b82f6;
-            border-color: #3b82f6;
-        }
-
-        /* Popup */
+        .map-control-btn:hover { background: #334155; transform: scale(1.05); }
+        .map-control-btn.active { background: #3b82f6; border-color: #3b82f6; }
         .leaflet-popup-content-wrapper {
             background: #1e293b;
             color: #e2e8f0;
             border: 1px solid #334155;
             border-radius: 12px;
         }
-        .leaflet-popup-tip {
-            background: #1e293b;
-        }
-        .leaflet-popup-content {
-            margin: 12px 16px;
-            font-size: 0.85rem;
-        }
-        .popup-address {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
+        .leaflet-popup-tip { background: #1e293b; }
+        .leaflet-popup-content { margin: 12px 16px; font-size: 0.85rem; }
+        .popup-address { margin-bottom: 8px; line-height: 1.5; }
         .popup-coords {
             font-family: monospace;
             font-size: 0.75rem;
@@ -322,16 +223,9 @@
             cursor: pointer;
             font-weight: 600;
         }
-        .popup-btn-copy {
-            background: #3b82f6;
-            color: white;
-        }
+        .popup-btn-copy { background: #3b82f6; color: white; }
         .popup-btn-copy:hover { background: #2563eb; }
-
-        /* Nokta listesi */
-        .points-list {
-            margin-top: 15px;
-        }
+        .points-list { margin-top: 15px; }
         .points-list h3 {
             font-size: 0.8rem;
             color: #94a3b8;
@@ -355,13 +249,9 @@
             align-items: center;
             gap: 10px;
         }
-        .point-item:hover {
-            border-color: #475569;
-            background: #1e293b;
-        }
+        .point-item:hover { border-color: #475569; background: #1e293b; }
         .point-number {
-            width: 24px;
-            height: 24px;
+            width: 24px; height: 24px;
             border-radius: 50%;
             background: #3b82f6;
             color: white;
@@ -372,22 +262,15 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .point-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .point-info { flex: 1; min-width: 0; }
         .point-coords {
             font-family: monospace;
             font-size: 0.7rem;
             color: #64748b;
         }
-        .point-actions {
-            display: flex;
-            gap: 4px;
-        }
+        .point-actions { display: flex; gap: 4px; }
         .point-action-btn {
-            width: 24px;
-            height: 24px;
+            width: 24px; height: 24px;
             border: none;
             border-radius: 6px;
             background: #334155;
@@ -398,18 +281,11 @@
             align-items: center;
             justify-content: center;
         }
-        .point-action-btn:hover {
-            background: #475569;
-        }
-        .point-action-btn.delete:hover {
-            background: #ef4444;
-        }
-
-        /* Toast */
+        .point-action-btn:hover { background: #475569; }
+        .point-action-btn.delete:hover { background: #ef4444; }
         .toast {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
+            bottom: 30px; left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: #1e293b;
             border: 1px solid #334155;
@@ -430,58 +306,39 @@
         }
         .toast.success { border-color: #10b981; }
         .toast.error { border-color: #ef4444; }
-
-        /* Responsive */
         @media (max-width: 900px) {
-            .app-container {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                height: 50vh;
-                border-right: none;
-                border-bottom: 1px solid #334155;
-            }
-            .map-area {
-                height: 50vh;
-            }
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; height: 50vh; border-right: none; border-bottom: 1px solid #334155; }
+            .map-area { height: 50vh; }
         }
-
-        /* Loading Spinner */
         .spinner {
-            width: 16px;
-            height: 16px;
+            width: 16px; height: 16px;
             border: 2px solid #e2e8f0;
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error-detail {
+            font-size: 0.7rem;
+            color: #ef4444;
+            margin-top: 4px;
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="app-container">
-        <!-- Sol Panel -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h1>📍 Konum & Adres Bulucu</h1>
-                <p>Haritaya tıkla → 3 farklı kaynaktan adres çek → en iyisini seç</p>
+                <p>Haritaya tıkla → Adres çıkart → En iyisini seç</p>
             </div>
-
             <div class="sidebar-content">
-                <!-- Butonlar -->
                 <div class="btn-group">
-                    <button class="btn btn-primary" id="btnGetLocation">
-                        📍 Konumum
-                    </button>
-                    <button class="btn btn-secondary" id="btnClearAll">
-                        🗑️ Temizle
-                    </button>
+                    <button class="btn btn-primary" id="btnGetLocation">📍 Konumum</button>
+                    <button class="btn btn-secondary" id="btnClearAll">🗑️ Temizle</button>
                 </div>
-
-                <!-- Koordinat Girişi -->
                 <div class="coord-card">
                     <h3>🎯 Koordinat ile Ara</h3>
                     <div class="coord-row">
@@ -494,12 +351,9 @@
                             <input type="text" class="coord-input" id="inputLng" placeholder="ör: 30.7500">
                         </div>
                     </div>
-                    <button class="btn btn-success" id="btnSearchCoords" style="width:100%; margin-top:10px;">
-                        🔍 Koordinatı Ara
-                    </button>
+                    <button class="btn btn-success" id="btnSearchCoords" style="width:100%; margin-top:10px;">🔍 Koordinatı Ara</button>
                 </div>
 
-                <!-- Adres Sonuçları -->
                 <div id="resultsArea" style="display:none;">
                     <div class="address-card" id="cardOSM">
                         <div class="address-source">
@@ -507,8 +361,9 @@
                             <span>OpenStreetMap</span>
                         </div>
                         <div class="address-text" id="textOSM">-</div>
+                        <div class="error-detail" id="errorOSM"></div>
                         <div class="address-score">
-                            Kalite Puanı: <span id="scoreOSM">0</span>/100
+                            Kalite: <span id="scoreOSM">0</span>/100
                             <div class="score-bar"><div class="score-fill" id="barOSM" style="width:0%"></div></div>
                         </div>
                     </div>
@@ -518,8 +373,9 @@
                             <span>BigDataCloud</span>
                         </div>
                         <div class="address-text" id="textBigData">-</div>
+                        <div class="error-detail" id="errorBigData"></div>
                         <div class="address-score">
-                            Kalite Puanı: <span id="scoreBigData">0</span>/100
+                            Kalite: <span id="scoreBigData">0</span>/100
                             <div class="score-bar"><div class="score-fill" id="barBigData" style="width:0%"></div></div>
                         </div>
                     </div>
@@ -529,146 +385,107 @@
                             <span>GeoCode.XYZ</span>
                         </div>
                         <div class="address-text" id="textGeoXYZ">-</div>
+                        <div class="error-detail" id="errorGeoXYZ"></div>
                         <div class="address-score">
-                            Kalite Puanı: <span id="scoreGeoXYZ">0</span>/100
+                            Kalite: <span id="scoreGeoXYZ">0</span>/100
                             <div class="score-bar"><div class="score-fill" id="barGeoXYZ" style="width:0%"></div></div>
                         </div>
                     </div>
-
-                    <!-- En İyi Adres -->
                     <div class="address-card best" id="cardBest">
                         <div class="address-source">
                             <span class="source-icon best-icon">🏆</span>
                             <span>EN İYİ ADRES</span>
                         </div>
                         <div class="address-text" id="textBest" style="font-size:1rem; font-weight:600;">-</div>
-                        <button class="btn btn-success" id="btnCopyBest" style="margin-top:10px; width:100%;">
-                            📋 Adresi Kopyala
-                        </button>
+                        <button class="btn btn-success" id="btnCopyBest" style="margin-top:10px; width:100%;">📋 Adresi Kopyala</button>
                     </div>
                 </div>
 
-                <!-- Tıklanan Noktalar -->
                 <div class="points-list" id="pointsListArea" style="display:none;">
-                    <h3>
-                        📌 Tıklanan Noktalar
-                        <span id="pointCount" style="color:#3b82f6;">0</span>
-                    </h3>
+                    <h3>📌 Tıklanan Noktalar <span id="pointCount" style="color:#3b82f6;">0</span></h3>
                     <div id="pointsList"></div>
                 </div>
             </div>
-
             <div class="status-bar">
                 <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Harita hazır. Konum almak veya haritaya tıklayın.</span>
+                <span id="statusText">Harita hazır. Konum alın veya haritaya tıklayın.</span>
             </div>
         </div>
 
-        <!-- Harita Alanı -->
         <div class="map-area">
             <div id="map"></div>
             <div class="map-controls">
-                <button class="map-control-btn" id="btnZoomIn" title="Yakınlaştır">+</button>
-                <button class="map-control-btn" id="btnZoomOut" title="Uzaklaştır">−</button>
-                <button class="map-control-btn" id="btnClickMode" title="Tıklama Modu (Açık/Kapalı)">👆</button>
-                <button class="map-control-btn" id="btnMyLocation" title="Konumuma Git">📍</button>
+                <button class="map-control-btn" id="btnZoomIn">+</button>
+                <button class="map-control-btn" id="btnZoomOut">−</button>
+                <button class="map-control-btn active" id="btnClickMode">👆</button>
+                <button class="map-control-btn" id="btnMyLocation">📍</button>
             </div>
         </div>
     </div>
-
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // ===== GLOBALS =====
-        let map = null;
-        let currentMarker = null;
-        let clickMarkers = [];
-        let clickPoints = [];
-        let clickMode = true;
-        let isLoading = false;
+        let map = null, currentMarker = null;
+        let clickMarkers = [], clickPoints = [];
+        let clickMode = true, isLoading = false;
 
-        // ===== INIT MAP =====
         function initMap() {
-            // Kumluca, Antalya varsayılan merkez
             map = L.map('map').setView([36.3667, 30.2833], 13);
-
-            // Tile layer - CartoDB Dark Matter
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                attribution: '&copy; OSM & CARTO',
                 subdomains: 'abcd',
                 maxZoom: 20
             }).addTo(map);
-
-            // Harita tıklama olayı
             map.on('click', function(e) {
-                if (clickMode) {
-                    handleMapClick(e.latlng.lat, e.latlng.lng);
-                }
+                if (clickMode && !isLoading) handleMapClick(e.latlng.lat, e.latlng.lng);
             });
         }
 
-        // ===== STATUS =====
         function setStatus(type, text) {
-            const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            txt.textContent = text;
-            dot.className = 'status-dot ' + type;
+            document.getElementById('statusDot').className = 'status-dot ' + type;
+            document.getElementById('statusText').textContent = text;
         }
 
-        // ===== TOAST =====
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type;
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // ===== COPY =====
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('✅ Panoya kopyalandı!', 'success');
-            }).catch(() => {
-                showToast('❌ Kopyalama başarısız', 'error');
-            });
+            navigator.clipboard.writeText(text).then(() => showToast('✅ Kopyalandı!', 'success'))
+                .catch(() => showToast('❌ Kopyalama başarısız', 'error'));
         }
 
-        // ===== ADDRESS QUALITY SCORE =====
-        function addressQualityScore(addressStr) {
-            if (!addressStr || addressStr === 'Adres alınamadı') return 0;
+        function addressQualityScore(addr) {
+            if (!addr || addr.includes('alamadı') || addr.includes('hatası') || addr.includes('bulunamadı')) return 0;
             let score = 0;
-            const keywords = ['mahallesi', 'sokak', 'street', 'cadde', 'avenue', 'bulvar', 'no:', 'number', 'bina', 'apartman', 'dairesi', 'caddesi', 'bulvarı'];
-            keywords.forEach(kw => {
-                if (addressStr.toLowerCase().includes(kw.toLowerCase())) score += 12;
-            });
-            if (/\d{1,4}/.test(addressStr)) score += 20;
-            score += Math.min(addressStr.length * 0.6, 25);
-            const cities = ['istanbul', 'ankara', 'izmir', 'antalya', 'kumluca', 'finike', 'demre', 'kaş'];
-            cities.forEach(c => {
-                if (addressStr.toLowerCase().includes(c)) score += 8;
-            });
+            const keywords = ['mahallesi','sokak','street','cadde','avenue','bulvar','no:','number','bina','apartman','dairesi','caddesi','bulvarı','cd.','sk.'];
+            keywords.forEach(kw => { if (addr.toLowerCase().includes(kw)) score += 12; });
+            if (/\d{1,4}/.test(addr)) score += 20;
+            score += Math.min(addr.length * 0.5, 20);
+            const cities = ['istanbul','ankara','izmir','antalya','kumluca','finike','demre','kaş','manavgat','alanya'];
+            cities.forEach(c => { if (addr.toLowerCase().includes(c)) score += 8; });
             return Math.min(score, 100);
         }
 
-        function getScoreClass(score) {
-            if (score >= 60) return 'high';
-            if (score >= 30) return 'medium';
-            return 'low';
+        function getScoreClass(s) { return s >= 60 ? 'high' : s >= 30 ? 'medium' : 'low'; }
+
+        // ===== CORS PROXY kullanarak API çağrıları =====
+        // CORS sorununu çözmek için allorigins.win proxy kullanıyoruz
+        async function fetchWithProxy(url) {
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+            const res = await fetch(proxyUrl, { headers: { 'User-Agent': 'BestAddressFinder/1.0' } });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return await res.json();
         }
 
-        // ===== API CALLS =====
         async function fetchOSMAddress(lat, lng) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=tr`;
-                const response = await fetch(url, {
-                    headers: { 'User-Agent': 'BestAddressFinder/1.0' }
-                });
-                const data = await response.json();
+                const data = await fetchWithProxy(url);
                 if (data && data.display_name) {
                     let detailed = data.display_name;
                     if (data.address) {
@@ -678,24 +495,22 @@
                         if (a.road) parts.push(a.road);
                         if (a.suburb) parts.push(a.suburb);
                         if (a.city_district) parts.push(a.city_district);
-                        if (a.city) parts.push(a.city);
-                        if (a.state) parts.push(a.state);
-                        if (parts.length > 0) detailed = parts.join(', ');
+                        if (a.city || a.town) parts.push(a.city || a.town);
+                        if (a.state || a.province) parts.push(a.state || a.province);
+                        if (parts.length > 2) detailed = parts.join(', ');
                     }
-                    return { success: true, address: detailed, raw: data };
+                    return { success: true, address: detailed };
                 }
-                return { success: false, address: 'Adres alınamadı' };
+                return { success: false, address: 'Adres bulunamadı', error: 'OSM veri döndürmedi' };
             } catch(e) {
-                console.warn('OSM hatası:', e);
-                return { success: false, address: 'Bağlantı hatası' };
+                return { success: false, address: 'Bağlantı hatası', error: e.message };
             }
         }
 
         async function fetchBigDataCloudAddress(lat, lng) {
             try {
                 const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=tr`;
-                const res = await fetch(url);
-                const data = await res.json();
+                const data = await fetchWithProxy(url);
                 if (data && data.locality) {
                     let addr = '';
                     if (data.streetNumber) addr += data.streetNumber + ' ';
@@ -703,140 +518,116 @@
                     if (data.locality) addr += data.locality + ', ';
                     if (data.city) addr += data.city;
                     if (data.principalSubdivision) addr += ', ' + data.principalSubdivision;
-                    addr = addr.replace(/, $/, '');
+                    addr = addr.replace(/, $/, '').trim();
                     if (addr.length > 3) return { success: true, address: addr };
                 }
-                return { success: false, address: 'Adres alınamadı' };
+                return { success: false, address: 'Adres bulunamadı', error: 'BigDataCloud veri döndürmedi' };
             } catch(e) {
-                return { success: false, address: 'Bağlantı hatası' };
+                return { success: false, address: 'Bağlantı hatası', error: e.message };
             }
         }
 
         async function fetchGeocodeXYZ(lat, lng) {
             try {
                 const url = `https://geocode.xyz/${lat},${lng}?geoit=json&region=TR`;
-                const res = await fetch(url);
-                const data = await res.json();
+                const data = await fetchWithProxy(url);
                 if (data && data.staddress) {
                     let addr = `${data.stnumber || ''} ${data.staddress || ''}, ${data.city || ''}, ${data.state || ''}`;
                     addr = addr.replace(/^\s*,/, '').replace(/,\s*$/, '').trim();
-                    return { success: true, address: addr };
-                } else if (data && data.osm && data.osm.display_name) {
+                    if (addr.length > 5) return { success: true, address: addr };
+                }
+                if (data && data.osm && data.osm.display_name) {
                     return { success: true, address: data.osm.display_name };
                 }
-                return { success: false, address: 'Adres alınamadı' };
+                return { success: false, address: 'Adres bulunamadı', error: 'GeoCode.XYZ veri döndürmedi' };
             } catch(e) {
-                return { success: false, address: 'Bağlantı hatası' };
+                return { success: false, address: 'Bağlantı hatası', error: e.message };
             }
         }
 
-        // ===== UPDATE UI =====
-        function updateAddressCard(id, address, score) {
-            const textEl = document.getElementById('text' + id);
-            const scoreEl = document.getElementById('score' + id);
-            const barEl = document.getElementById('bar' + id);
-
-            textEl.textContent = address;
-            scoreEl.textContent = score;
-            barEl.style.width = score + '%';
-            barEl.className = 'score-fill ' + getScoreClass(score);
+        function updateAddressCard(id, address, score, errorMsg) {
+            document.getElementById('text' + id).textContent = address;
+            document.getElementById('score' + id).textContent = score;
+            const bar = document.getElementById('bar' + id);
+            bar.style.width = score + '%';
+            bar.className = 'score-fill ' + getScoreClass(score);
+            const errEl = document.getElementById('error' + id);
+            errEl.textContent = errorMsg || '';
+            errEl.style.display = errorMsg ? 'block' : 'none';
         }
 
-        // ===== MAIN: GET ALL ADDRESSES =====
         async function getAllAddresses(lat, lng, isClick = false) {
             if (isLoading) return;
             isLoading = true;
-            setStatus('loading', '⏳ 3 farklı kaynaktan adres bilgisi toplanıyor...');
+            setStatus('loading', '⏳ Adresler sorgulanıyor...');
 
-            // Haritayı güncelle
             if (currentMarker) map.removeLayer(currentMarker);
             currentMarker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 17);
 
-            // Input güncelle
             document.getElementById('inputLat').value = lat.toFixed(6);
             document.getElementById('inputLng').value = lng.toFixed(6);
-
-            // Sonuç alanını göster
             document.getElementById('resultsArea').style.display = 'block';
 
-            // Reset cards
-            document.getElementById('cardOSM').classList.remove('best');
-            document.getElementById('cardBigData').classList.remove('best');
-            document.getElementById('cardGeoXYZ').classList.remove('best');
+            ['OSM','BigData','GeoXYZ'].forEach(id => document.getElementById('card' + id).classList.remove('best'));
 
-            // API çağrıları
-            const [osmRes, bigRes, geoRes] = await Promise.all([
-                fetchOSMAddress(lat, lng),
-                fetchBigDataCloudAddress(lat, lng),
-                fetchGeocodeXYZ(lat, lng)
-            ]);
+            // Sırayla çağır (rate limit için)
+            const osmRes = await fetchOSMAddress(lat, lng);
+            await new Promise(r => setTimeout(r, 300));
+            const bigRes = await fetchBigDataCloudAddress(lat, lng);
+            await new Promise(r => setTimeout(r, 300));
+            const geoRes = await fetchGeocodeXYZ(lat, lng);
 
             const addresses = {
                 OSM: osmRes.success ? osmRes.address : osmRes.address,
                 BigData: bigRes.success ? bigRes.address : bigRes.address,
                 GeoXYZ: geoRes.success ? geoRes.address : geoRes.address
             };
-
+            const errors = {
+                OSM: osmRes.error || '',
+                BigData: bigRes.error || '',
+                GeoXYZ: geoRes.error || ''
+            };
             const scores = {
                 OSM: addressQualityScore(addresses.OSM),
                 BigData: addressQualityScore(addresses.BigData),
                 GeoXYZ: addressQualityScore(addresses.GeoXYZ)
             };
 
-            // UI güncelle
-            updateAddressCard('OSM', addresses.OSM, scores.OSM);
-            updateAddressCard('BigData', addresses.BigData, scores.BigData);
-            updateAddressCard('GeoXYZ', addresses.GeoXYZ, scores.GeoXYZ);
+            updateAddressCard('OSM', addresses.OSM, scores.OSM, errors.OSM);
+            updateAddressCard('BigData', addresses.BigData, scores.BigData, errors.BigData);
+            updateAddressCard('GeoXYZ', addresses.GeoXYZ, scores.GeoXYZ, errors.GeoXYZ);
 
-            // En iyiyi bul
-            let bestKey = 'OSM';
-            let bestScore = scores.OSM;
+            let bestKey = 'OSM', bestScore = scores.OSM;
             if (scores.BigData > bestScore) { bestKey = 'BigData'; bestScore = scores.BigData; }
             if (scores.GeoXYZ > bestScore) { bestKey = 'GeoXYZ'; bestScore = scores.GeoXYZ; }
 
-            // Fallback
             let bestAddress = addresses[bestKey];
-            if (bestAddress === 'Adres alınamadı' || bestAddress === 'Bağlantı hatası') {
-                const valid = Object.values(addresses).find(a => a !== 'Adres alınamadı' && a !== 'Bağlantı hatası');
-                bestAddress = valid || 'Adres bulunamadı';
+            if (!bestAddress || bestAddress.includes('alamadı') || bestAddress.includes('hatası')) {
+                const valid = Object.values(addresses).find(a => a && !a.includes('alamadı') && !a.includes('hatası'));
+                bestAddress = valid || '❌ Adres bulunamadı. İnternet bağlantınızı kontrol edin.';
             }
 
             document.getElementById('textBest').textContent = bestAddress;
-
-            // En iyi kartı vurgula
             document.getElementById('card' + bestKey).classList.add('best');
 
-            // Popup
             currentMarker.bindPopup(`
                 <div class="popup-coords">📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
                 <div class="popup-address">${bestAddress}</div>
                 <button class="popup-btn popup-btn-copy" onclick="copyPopupAddress('${bestAddress.replace(/'/g, "\'")}')">📋 Kopyala</button>
             `).openPopup();
 
-            setStatus('active', `✅ En iyi adres (${bestKey}) bulundu. Puan: ${bestScore}/100`);
+            setStatus('active', bestAddress.includes('bulunamadı') ? '⚠️ Adres bulunamadı' : `✅ En iyi adres (${bestKey}) bulundu`);
 
-            // Tıklanan noktaya ekle
-            if (isClick) {
-                addClickPoint(lat, lng, bestAddress);
-            }
-
+            if (isClick) addClickPoint(lat, lng, bestAddress);
             isLoading = false;
         }
 
-        // ===== CLICK POINTS =====
         function addClickPoint(lat, lng, address) {
             const idx = clickPoints.length;
             clickPoints.push({ lat, lng, address, time: new Date() });
-
-            // Marker ekle (farklı renk)
             const marker = L.circleMarker([lat, lng], {
-                radius: 8,
-                fillColor: '#f59e0b',
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.9
+                radius: 8, fillColor: '#f59e0b', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.9
             }).addTo(map);
             marker.bindPopup(`
                 <div class="popup-coords">Nokta #${idx + 1}</div>
@@ -844,8 +635,6 @@
                 <div class="popup-coords">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
             `);
             clickMarkers.push(marker);
-
-            // Listeyi güncelle
             updatePointsList();
         }
 
@@ -853,15 +642,9 @@
             const listEl = document.getElementById('pointsList');
             const countEl = document.getElementById('pointCount');
             const areaEl = document.getElementById('pointsListArea');
-
-            if (clickPoints.length === 0) {
-                areaEl.style.display = 'none';
-                return;
-            }
-
+            if (clickPoints.length === 0) { areaEl.style.display = 'none'; return; }
             areaEl.style.display = 'block';
             countEl.textContent = clickPoints.length;
-
             listEl.innerHTML = clickPoints.map((p, i) => `
                 <div class="point-item" onclick="flyToPoint(${i})">
                     <div class="point-number">${i + 1}</div>
@@ -870,8 +653,8 @@
                         <div class="point-coords">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div>
                     </div>
                     <div class="point-actions">
-                        <button class="point-action-btn" onclick="event.stopPropagation(); copyToClipboard('${p.address.replace(/'/g, "\'")}')" title="Kopyala">📋</button>
-                        <button class="point-action-btn delete" onclick="event.stopPropagation(); removePoint(${i})" title="Sil">🗑️</button>
+                        <button class="point-action-btn" onclick="event.stopPropagation(); copyToClipboard('${p.address.replace(/'/g, "\'")}')">📋</button>
+                        <button class="point-action-btn delete" onclick="event.stopPropagation(); removePoint(${i})">🗑️</button>
                     </div>
                 </div>
             `).join('');
@@ -892,37 +675,24 @@
 
         function clearAllPoints() {
             clickMarkers.forEach(m => map.removeLayer(m));
-            clickMarkers = [];
-            clickPoints = [];
+            clickMarkers = []; clickPoints = [];
             updatePointsList();
-            if (currentMarker) {
-                map.removeLayer(currentMarker);
-                currentMarker = null;
-            }
+            if (currentMarker) { map.removeLayer(currentMarker); currentMarker = null; }
             document.getElementById('resultsArea').style.display = 'none';
             document.getElementById('inputLat').value = '';
             document.getElementById('inputLng').value = '';
             setStatus('active', 'Tüm noktalar temizlendi.');
         }
 
-        // ===== HANDLERS =====
-        function handleMapClick(lat, lng) {
-            getAllAddresses(lat, lng, true);
-        }
+        function handleMapClick(lat, lng) { getAllAddresses(lat, lng, true); }
 
         function getMyLocation() {
-            if (!navigator.geolocation) {
-                showToast('Tarayıcı konum desteklemiyor', 'error');
-                return;
-            }
+            if (!navigator.geolocation) { showToast('Konum desteklenmiyor', 'error'); return; }
             setStatus('loading', '📍 Konum alınıyor...');
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    getAllAddresses(pos.coords.latitude, pos.coords.longitude, false);
-                },
+                (pos) => getAllAddresses(pos.coords.latitude, pos.coords.longitude, false),
                 (err) => {
-                    let msg = 'Konum alınamadı';
-                    if (err.code === 1) msg = 'Konum izni reddedildi';
+                    let msg = err.code === 1 ? 'Konum izni reddedildi' : 'Konum alınamadı';
                     setStatus('error', '❌ ' + msg);
                     showToast(msg, 'error');
                 },
@@ -933,19 +703,13 @@
         function searchByCoords() {
             const lat = parseFloat(document.getElementById('inputLat').value);
             const lng = parseFloat(document.getElementById('inputLng').value);
-            if (isNaN(lat) || isNaN(lng)) {
-                showToast('Geçerli koordinat girin', 'error');
-                return;
-            }
+            if (isNaN(lat) || isNaN(lng)) { showToast('Geçerli koordinat girin', 'error'); return; }
             getAllAddresses(lat, lng, false);
         }
 
-        // ===== POPUP HELPER =====
-        function copyPopupAddress(text) {
-            copyToClipboard(text);
-        }
+        function copyPopupAddress(text) { copyToClipboard(text); }
 
-        // ===== EVENT LISTENERS =====
+        // Events
         document.getElementById('btnGetLocation').addEventListener('click', getMyLocation);
         document.getElementById('btnMyLocation').addEventListener('click', getMyLocation);
         document.getElementById('btnSearchCoords').addEventListener('click', searchByCoords);
@@ -965,17 +729,10 @@
             showToast(clickMode ? 'Tıklama modu AÇIK' : 'Tıklama modu KAPALI', 'success');
         });
 
-        // Enter ile koordinat ara
-        document.getElementById('inputLat').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchByCoords();
-        });
-        document.getElementById('inputLng').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchByCoords();
-        });
+        document.getElementById('inputLat').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchByCoords(); });
+        document.getElementById('inputLng').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchByCoords(); });
 
-        // ===== START =====
         initMap();
-        btnClickMode.classList.add('active');
         setStatus('active', 'Harita hazır. Konum alın veya haritaya tıklayın.');
     </script>
 </body>
