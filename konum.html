@@ -1,1 +1,857 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Konum & Adres Bulucu</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+        }
+        .app-container { display: flex; height: 100vh; }
 
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 380px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            padding: 18px 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .sidebar-header p { font-size: 0.78rem; color: #64748b; }
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .sidebar-content::-webkit-scrollbar { width: 6px; }
+        .sidebar-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* ===== BUTTONS ===== */
+        .btn-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        .btn {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-ghost { background: transparent; color: #64748b; border: 1px dashed #cbd5e1; }
+        .btn-ghost:hover { background: #f8fafc; color: #475569; }
+
+        /* ===== COORD INPUT ===== */
+        .coord-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .coord-card h3 {
+            font-size: 0.72rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .coord-row { display: flex; gap: 8px; margin-bottom: 6px; }
+        .coord-input {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 9px 11px;
+            color: #1e293b;
+            font-size: 0.85rem;
+            font-family: 'SF Mono', monospace;
+        }
+        .coord-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .coord-label { font-size: 0.68rem; color: #94a3b8; margin-bottom: 3px; font-weight: 500; }
+
+        /* ===== ADDRESS CARDS ===== */
+        .address-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            transition: all 0.15s;
+        }
+        .address-card:hover { border-color: #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .address-card.best {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            box-shadow: 0 0 0 1px #16a34a, 0 2px 8px rgba(22,163,74,0.1);
+        }
+        .address-source {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .source-icon {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+        }
+        .osm-icon { background: #7c3aed; }
+        .google-icon { background: #ea4335; }
+        .yandex-icon { background: #ffcc00; color: #000; }
+        .best-icon { background: #16a34a; }
+        .address-text {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #334155;
+            word-break: break-word;
+        }
+        .address-text.empty {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .address-score {
+            margin-top: 8px;
+            font-size: 0.72rem;
+            color: #64748b;
+        }
+        .score-bar {
+            height: 3px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+        .score-fill.high { background: #16a34a; }
+        .score-fill.medium { background: #f59e0b; }
+        .score-fill.low { background: #ef4444; }
+        .error-text {
+            font-size: 0.72rem;
+            color: #dc2626;
+            margin-top: 4px;
+        }
+
+        /* ===== BEST CARD ===== */
+        .best-address-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        /* ===== POINTS LIST ===== */
+        .points-list { margin-top: 12px; }
+        .points-list h3 {
+            font-size: 0.72rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .point-count { color: #2563eb; font-weight: 700; }
+        .point-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .point-item:hover { border-color: #2563eb; background: #eff6ff; }
+        .point-number {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .point-info { flex: 1; min-width: 0; }
+        .point-addr {
+            color: #334155;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .point-coords {
+            font-family: monospace;
+            font-size: 0.68rem;
+            color: #94a3b8;
+            margin-top: 1px;
+        }
+        .point-actions { display: flex; gap: 3px; flex-shrink: 0; }
+        .point-action-btn {
+            width: 24px; height: 24px;
+            border: none;
+            border-radius: 5px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .point-action-btn:hover { background: #e2e8f0; color: #334155; }
+        .point-action-btn.delete:hover { background: #fee2e2; color: #dc2626; }
+
+        /* ===== STATUS ===== */
+        .status-bar {
+            padding: 10px 15px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.75rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #94a3b8;
+            flex-shrink: 0;
+        }
+        .status-dot.active { background: #16a34a; }
+        .status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+        .status-dot.error { background: #ef4444; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* ===== MAP ===== */
+        .map-area { flex: 1; position: relative; }
+        #map { width: 100%; height: 100%; z-index: 1; }
+        .map-controls {
+            position: absolute;
+            top: 15px; right: 15px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .map-control-btn {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .map-control-btn:hover { background: #f8fafc; transform: scale(1.05); }
+        .map-control-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+        /* ===== POPUP ===== */
+        .leaflet-popup-content-wrapper {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        .leaflet-popup-tip { background: #ffffff; }
+        .leaflet-popup-content { margin: 12px 14px; font-size: 0.82rem; }
+        .popup-addr { margin-bottom: 6px; line-height: 1.5; font-weight: 500; }
+        .popup-coords {
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .popup-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-weight: 600;
+            background: #2563eb;
+            color: white;
+        }
+        .popup-btn:hover { background: #1d4ed8; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 25px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1e293b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ===== LOADING ===== */
+        .spinner {
+            width: 14px; height: 14px;
+            border: 2px solid #cbd5e1;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: 55vh;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .map-area { height: 45vh; }
+            .sidebar-header h1 { font-size: 1.1rem; }
+            .sidebar-header { padding: 12px 15px; }
+            .sidebar-content { padding: 10px; }
+            .btn { padding: 8px 10px; font-size: 0.78rem; }
+            .coord-card { padding: 10px; }
+            .address-card { padding: 10px; }
+        }
+
+        /* ===== HIDE/SHOW ===== */
+        .hidden { display: none !important; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>📍 Konum & Adres Bulucu</h1>
+                <p>Haritaya tıkla → 3 kaynaktan adres çek → En iyisini seç</p>
+            </div>
+            <div class="sidebar-content">
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="btnGetLocation">
+                        <span>📍</span> Konumum
+                    </button>
+                    <button class="btn btn-secondary" id="btnClearAll">
+                        <span>🗑️</span> Temizle
+                    </button>
+                </div>
+
+                <!-- Koordinat Girişi -->
+                <div class="coord-card">
+                    <h3>🎯 Koordinat ile Ara</h3>
+                    <div class="coord-row">
+                        <div style="flex:1">
+                            <div class="coord-label">Enlem (Lat)</div>
+                            <input type="text" class="coord-input" id="inputLat" placeholder="36.3667">
+                        </div>
+                        <div style="flex:1">
+                            <div class="coord-label">Boylam (Lng)</div>
+                            <input type="text" class="coord-input" id="inputLng" placeholder="30.2833">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" id="btnSearchCoords" style="width:100%; margin-top:8px;">
+                        <span>🔍</span> Koordinatı Ara
+                    </button>
+                </div>
+
+                <!-- Sonuçlar -->
+                <div id="resultsArea" class="hidden">
+                    <div class="address-card" id="cardOSM">
+                        <div class="address-source">
+                            <span class="source-icon osm-icon">OSM</span>
+                            <span>OpenStreetMap</span>
+                        </div>
+                        <div class="address-text empty" id="textOSM">Yükleniyor...</div>
+                        <div class="error-text hidden" id="errorOSM"></div>
+                        <div class="address-score">
+                            Kalite: <span id="scoreOSM">0</span>/100
+                            <div class="score-bar"><div class="score-fill" id="barOSM" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                    <div class="address-card" id="cardBigData">
+                        <div class="address-source">
+                            <span class="source-icon google-icon">G</span>
+                            <span>BigDataCloud</span>
+                        </div>
+                        <div class="address-text empty" id="textBigData">Yükleniyor...</div>
+                        <div class="error-text hidden" id="errorBigData"></div>
+                        <div class="address-score">
+                            Kalite: <span id="scoreBigData">0</span>/100
+                            <div class="score-bar"><div class="score-fill" id="barBigData" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                    <div class="address-card" id="cardGeoXYZ">
+                        <div class="address-source">
+                            <span class="source-icon yandex-icon">Y</span>
+                            <span>GeoCode.XYZ</span>
+                        </div>
+                        <div class="address-text empty" id="textGeoXYZ">Yükleniyor...</div>
+                        <div class="error-text hidden" id="errorGeoXYZ"></div>
+                        <div class="address-score">
+                            Kalite: <span id="scoreGeoXYZ">0</span>/100
+                            <div class="score-bar"><div class="score-fill" id="barGeoXYZ" style="width:0%"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- En İyi -->
+                    <div class="address-card best" id="cardBest">
+                        <div class="address-source">
+                            <span class="source-icon best-icon">🏆</span>
+                            <span>EN İYİ ADRES</span>
+                        </div>
+                        <div class="best-address-text" id="textBest">-</div>
+                        <button class="btn btn-success" id="btnCopyBest" style="margin-top:10px; width:100%;">
+                            <span>📋</span> Adresi Kopyala
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tıklanan Noktalar -->
+                <div class="points-list hidden" id="pointsListArea">
+                    <h3>
+                        📌 Tıklanan Noktalar
+                        <span class="point-count" id="pointCount">0</span>
+                    </h3>
+                    <div id="pointsList"></div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Harita hazır. Konum alın veya haritaya tıklayın.</span>
+            </div>
+        </div>
+
+        <!-- MAP -->
+        <div class="map-area">
+            <div id="map"></div>
+            <div class="map-controls">
+                <button class="map-control-btn" id="btnZoomIn">+</button>
+                <button class="map-control-btn" id="btnZoomOut">−</button>
+                <button class="map-control-btn active" id="btnClickMode">👆</button>
+                <button class="map-control-btn" id="btnMyLocation">📍</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== GLOBALS =====
+        let map = null, currentMarker = null;
+        let clickMarkers = [], clickPoints = [];
+        let clickMode = true, isLoading = false;
+        const PROXY = 'https://api.allorigins.win/raw?url=';
+
+        // ===== INIT =====
+        function initMap() {
+            map = L.map('map', { zoomControl: false }).setView([36.3667, 30.2833], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://openstreetmap.org">OSM</a>',
+                maxZoom: 19
+            }).addTo(map);
+
+            map.on('click', function(e) {
+                if (clickMode && !isLoading) {
+                    handleMapClick(e.latlng.lat, e.latlng.lng);
+                }
+            });
+        }
+
+        // ===== UI HELPERS =====
+        function setStatus(type, text) {
+            const dot = document.getElementById('statusDot');
+            const txt = document.getElementById('statusText');
+            dot.className = 'status-dot ' + type;
+            txt.textContent = text;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => showToast('✅ Kopyalandı!'))
+                .catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('✅ Kopyalandı!');
+                });
+        }
+
+        // ===== SCORING =====
+        function scoreAddress(addr) {
+            if (!addr || addr.includes('alamadı') || addr.includes('hatası') || addr.includes('bulunamadı')) return 0;
+            let s = 0;
+            const kw = ['mahallesi','sokak','street','cadde','avenue','bulvar','no:','number','bina','apartman','dairesi','caddesi','bulvarı','cd.','sk.','mah.','mh.'];
+            kw.forEach(k => { if (addr.toLowerCase().includes(k)) s += 12; });
+            if (/\d{1,4}/.test(addr)) s += 20;
+            s += Math.min(addr.length * 0.5, 20);
+            const cities = ['istanbul','ankara','izmir','antalya','kumluca','finike','demre','kaş','manavgat','alanya','serik','kemer'];
+            cities.forEach(c => { if (addr.toLowerCase().includes(c)) s += 8; });
+            return Math.min(s, 100);
+        }
+
+        function scoreClass(s) { return s >= 60 ? 'high' : s >= 30 ? 'medium' : 'low'; }
+
+        // ===== API CALLS (with proxy for CORS) =====
+        async function apiCall(url) {
+            const res = await fetch(PROXY + encodeURIComponent(url));
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return await res.json();
+        }
+
+        async function fetchOSM(lat, lng) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=tr`;
+                const data = await apiCall(url);
+                if (data && data.display_name) {
+                    let addr = data.display_name;
+                    if (data.address) {
+                        const a = data.address;
+                        const parts = [];
+                        if (a.house_number) parts.push(a.house_number);
+                        if (a.road) parts.push(a.road);
+                        if (a.suburb || a.neighbourhood) parts.push(a.suburb || a.neighbourhood);
+                        if (a.city_district || a.district) parts.push(a.city_district || a.district);
+                        if (a.city || a.town || a.village) parts.push(a.city || a.town || a.village);
+                        if (a.state || a.province) parts.push(a.state || a.province);
+                        if (parts.length > 2) addr = parts.join(', ');
+                    }
+                    return { ok: true, addr };
+                }
+                return { ok: false, addr: 'Adres bulunamadı', err: 'Veri yok' };
+            } catch(e) {
+                return { ok: false, addr: 'Bağlantı hatası', err: e.message };
+            }
+        }
+
+        async function fetchBigData(lat, lng) {
+            try {
+                const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=tr`;
+                const data = await apiCall(url);
+                if (data && data.locality) {
+                    let addr = '';
+                    if (data.streetNumber) addr += data.streetNumber + ' ';
+                    if (data.street) addr += data.street + ', ';
+                    if (data.locality) addr += data.locality + ', ';
+                    if (data.city) addr += data.city;
+                    if (data.principalSubdivision) addr += ', ' + data.principalSubdivision;
+                    addr = addr.replace(/, $/, '').trim();
+                    if (addr.length > 5) return { ok: true, addr };
+                }
+                return { ok: false, addr: 'Adres bulunamadı', err: 'Veri yok' };
+            } catch(e) {
+                return { ok: false, addr: 'Bağlantı hatası', err: e.message };
+            }
+        }
+
+        async function fetchGeoXYZ(lat, lng) {
+            try {
+                const url = `https://geocode.xyz/${lat},${lng}?geoit=json&region=TR`;
+                const data = await apiCall(url);
+                if (data && data.staddress) {
+                    let addr = `${data.stnumber || ''} ${data.staddress || ''}, ${data.city || ''}, ${data.state || ''}`;
+                    addr = addr.replace(/^\s*,/, '').replace(/,\s*$/, '').trim();
+                    if (addr.length > 5) return { ok: true, addr };
+                }
+                if (data && data.osm && data.osm.display_name) {
+                    return { ok: true, addr: data.osm.display_name };
+                }
+                return { ok: false, addr: 'Adres bulunamadı', err: 'Veri yok' };
+            } catch(e) {
+                return { ok: false, addr: 'Bağlantı hatası', err: e.message };
+            }
+        }
+
+        // ===== UPDATE UI =====
+        function updateCard(id, addr, sc, err) {
+            const textEl = document.getElementById('text' + id);
+            const scoreEl = document.getElementById('score' + id);
+            const barEl = document.getElementById('bar' + id);
+            const errEl = document.getElementById('error' + id);
+
+            textEl.textContent = addr;
+            textEl.className = 'address-text' + (addr.includes('alamadı') || addr.includes('hatası') ? ' empty' : '');
+            scoreEl.textContent = sc;
+            barEl.style.width = sc + '%';
+            barEl.className = 'score-fill ' + scoreClass(sc);
+
+            if (err) {
+                errEl.textContent = '⚠️ ' + err;
+                errEl.classList.remove('hidden');
+            } else {
+                errEl.classList.add('hidden');
+            }
+        }
+
+        // ===== MAIN FUNCTION =====
+        async function getAllAddresses(lat, lng, isClick) {
+            if (isLoading) return;
+            isLoading = true;
+            setStatus('loading', '⏳ Adresler sorgulanıyor...');
+
+            // Harita güncelle
+            if (currentMarker) map.removeLayer(currentMarker);
+            currentMarker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 17);
+
+            document.getElementById('inputLat').value = lat.toFixed(6);
+            document.getElementById('inputLng').value = lng.toFixed(6);
+            document.getElementById('resultsArea').classList.remove('hidden');
+
+            ['OSM','BigData','GeoXYZ'].forEach(id => {
+                document.getElementById('card' + id).classList.remove('best');
+                document.getElementById('text' + id).textContent = 'Yükleniyor...';
+                document.getElementById('text' + id).className = 'address-text empty';
+            });
+
+            // Sırayla çağır (rate limit)
+            const osm = await fetchOSM(lat, lng);
+            await sleep(400);
+            const big = await fetchBigData(lat, lng);
+            await sleep(400);
+            const geo = await fetchGeoXYZ(lat, lng);
+
+            const addrs = { OSM: osm.addr, BigData: big.addr, GeoXYZ: geo.addr };
+            const errs = { OSM: osm.err, BigData: big.err, GeoXYZ: geo.err };
+            const scores = {
+                OSM: scoreAddress(osm.addr),
+                BigData: scoreAddress(big.addr),
+                GeoXYZ: scoreAddress(geo.addr)
+            };
+
+            updateCard('OSM', addrs.OSM, scores.OSM, errs.OSM);
+            updateCard('BigData', addrs.BigData, scores.BigData, errs.BigData);
+            updateCard('GeoXYZ', addrs.GeoXYZ, scores.GeoXYZ, errs.GeoXYZ);
+
+            // En iyiyi bul
+            let bestKey = 'OSM', bestSc = scores.OSM;
+            if (scores.BigData > bestSc) { bestKey = 'BigData'; bestSc = scores.BigData; }
+            if (scores.GeoXYZ > bestSc) { bestKey = 'GeoXYZ'; bestSc = scores.GeoXYZ; }
+
+            let bestAddr = addrs[bestKey];
+            if (!bestAddr || bestAddr.includes('alamadı') || bestAddr.includes('hatası')) {
+                const valid = Object.values(addrs).find(a => a && !a.includes('alamadı') && !a.includes('hatası'));
+                bestAddr = valid || '❌ Adres bulunamadı. İnternet bağlantınızı kontrol edin.';
+            }
+
+            document.getElementById('textBest').textContent = bestAddr;
+            document.getElementById('card' + bestKey).classList.add('best');
+
+            // Popup
+            currentMarker.bindPopup(`
+                <div class="popup-coords">📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+                <div class="popup-addr">${bestAddr}</div>
+                <button class="popup-btn" onclick="copyPopup('${bestAddr.replace(/'/g, "\'")}')">📋 Kopyala</button>
+            `).openPopup();
+
+            setStatus('active', bestAddr.includes('bulunamadı') ? '⚠️ Adres bulunamadı' : `✅ En iyi adres: ${bestKey}`);
+
+            if (isClick) addPoint(lat, lng, bestAddr);
+            isLoading = false;
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        // ===== POINTS =====
+        function addPoint(lat, lng, addr) {
+            const idx = clickPoints.length;
+            clickPoints.push({ lat, lng, addr });
+
+            const marker = L.circleMarker([lat, lng], {
+                radius: 8, fillColor: '#f59e0b', color: '#fff',
+                weight: 2, opacity: 1, fillOpacity: 0.9
+            }).addTo(map);
+            marker.bindPopup(`
+                <div class="popup-coords">Nokta #${idx + 1}</div>
+                <div class="popup-addr">${addr}</div>
+                <div class="popup-coords">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+            `);
+            clickMarkers.push(marker);
+            updateList();
+        }
+
+        function updateList() {
+            const list = document.getElementById('pointsList');
+            const count = document.getElementById('pointCount');
+            const area = document.getElementById('pointsListArea');
+
+            if (clickPoints.length === 0) { area.classList.add('hidden'); return; }
+            area.classList.remove('hidden');
+            count.textContent = clickPoints.length;
+
+            list.innerHTML = clickPoints.map((p, i) => `
+                <div class="point-item" onclick="flyTo(${i})">
+                    <div class="point-number">${i + 1}</div>
+                    <div class="point-info">
+                        <div class="point-addr">${p.addr}</div>
+                        <div class="point-coords">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div>
+                    </div>
+                    <div class="point-actions">
+                        <button class="point-action-btn" onclick="event.stopPropagation(); copyText('${p.addr.replace(/'/g, "\'")}')">📋</button>
+                        <button class="point-action-btn delete" onclick="event.stopPropagation(); removePt(${i})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function flyTo(idx) {
+            const p = clickPoints[idx];
+            map.flyTo([p.lat, p.lng], 17);
+            clickMarkers[idx].openPopup();
+        }
+
+        function removePt(idx) {
+            map.removeLayer(clickMarkers[idx]);
+            clickMarkers.splice(idx, 1);
+            clickPoints.splice(idx, 1);
+            updateList();
+        }
+
+        function clearAll() {
+            clickMarkers.forEach(m => map.removeLayer(m));
+            clickMarkers = []; clickPoints = [];
+            updateList();
+            if (currentMarker) { map.removeLayer(currentMarker); currentMarker = null; }
+            document.getElementById('resultsArea').classList.add('hidden');
+            document.getElementById('inputLat').value = '';
+            document.getElementById('inputLng').value = '';
+            setStatus('active', 'Tüm noktalar temizlendi.');
+        }
+
+        // ===== HANDLERS =====
+        function handleMapClick(lat, lng) { getAllAddresses(lat, lng, true); }
+
+        function getMyLocation() {
+            if (!navigator.geolocation) { showToast('Konum desteklenmiyor'); return; }
+            setStatus('loading', '📍 Konum alınıyor...');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => getAllAddresses(pos.coords.latitude, pos.coords.longitude, false),
+                (err) => {
+                    const msg = err.code === 1 ? 'Konum izni reddedildi' : 'Konum alınamadı';
+                    setStatus('error', '❌ ' + msg);
+                    showToast(msg);
+                },
+                { enableHighAccuracy: true, timeout: 15000 }
+            );
+        }
+
+        function searchCoords() {
+            const lat = parseFloat(document.getElementById('inputLat').value);
+            const lng = parseFloat(document.getElementById('inputLng').value);
+            if (isNaN(lat) || isNaN(lng)) { showToast('Geçerli koordinat girin'); return; }
+            getAllAddresses(lat, lng, false);
+        }
+
+        function copyPopup(text) { copyText(text); }
+
+        // ===== EVENTS =====
+        document.getElementById('btnGetLocation').addEventListener('click', getMyLocation);
+        document.getElementById('btnMyLocation').addEventListener('click', getMyLocation);
+        document.getElementById('btnSearchCoords').addEventListener('click', searchCoords);
+        document.getElementById('btnClearAll').addEventListener('click', clearAll);
+        document.getElementById('btnCopyBest').addEventListener('click', () => {
+            const a = document.getElementById('textBest').textContent;
+            if (a && a !== '-') copyText(a);
+        });
+        document.getElementById('btnZoomIn').addEventListener('click', () => map.zoomIn());
+        document.getElementById('btnZoomOut').addEventListener('click', () => map.zoomOut());
+
+        const btnClick = document.getElementById('btnClickMode');
+        btnClick.addEventListener('click', () => {
+            clickMode = !clickMode;
+            btnClick.classList.toggle('active', clickMode);
+            btnClick.textContent = clickMode ? '👆' : '✋';
+            showToast(clickMode ? 'Tıklama modu AÇIK' : 'Tıklama modu KAPALI');
+        });
+
+        document.getElementById('inputLat').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCoords(); });
+        document.getElementById('inputLng').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCoords(); });
+
+        // ===== START =====
+        initMap();
+        setStatus('active', 'Harita hazır. Konum alın veya haritaya tıklayın.');
+    </script>
+</body>
+</html>
